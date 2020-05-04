@@ -1,112 +1,182 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="title">
-  Welcome, {{ name }}!
-</h1>
 
-<div class="playingCards faceImages rotateHand">
-<ul class="table">
-  	{%for card in table_cards%}
-  		<li><div class="card rank-{{card.value}} {{card.suit}}" href="">
-  			<span class="rank">{{card.value}}</span>
-  			<span class="suit">&{{card.suit}};</span>
-  		</div>
-  	</li>
-  	{%endfor%}
- </ul>
+<marquee>
+    <span>Trump:</span>
+    <span class="suit">&{{trump}};</span>
+
+    <span>;</span>
+
+    <span>Bid_winner:</span>
+    <span>{{bid_winner}};</span>
+
+    <span>;</span>
+
+    <span>Partners:</span>
+    {%for i in partner_cards%}
+
+    <span class="rank">{{i[1]}}</span>
+    <span class="suit">&{{i[0]}};</span>
+    <span>,</span>
+
+    {%endfor%}
+
+    {%if partner_cards|length == 0 %}
+    <span>None</span>
+    {%endif%}
+
+
+</marquee>
+
+<span style="padding-left: 30px;">Player Order:</span>
+{%for player in player_order%}
+{%if player_order[turn_id] == player%}
+<b>
+{%endif%}
+<span>{{player}}</span>
+{%if player_order[turn_id] == player%}
+</b>
+{%endif%}
+<span>,</span>
+
+{%endfor%}
+<div style="padding-left: 30px;width: 100%;overflow: scroll;">
+    Table:
+    <div style="display: table-cell;">
+        <div class="playingCards faceImages">
+            <ul class="hand">
+                {%for card in table_cards%}
+                <li>
+                    <div class="card {{card.suit}}" href="">
+                        <span class="rank">{{card.value}}</span>
+                        <span class="suit">&{{card.suit}};</span>
+                    </div>
+                </li>
+                {%endfor%}
+            </ul>
+        </div>
+    </div>
 </div>
+</br>
 
 {% include "hand.html"%}
 
-<h2 class="subtitle">
-	Trump: 
-	<div class="playingCards faceImages rotateHand">
-		<div class="card rank-8 {{trump}}">
-    		<span class="rank"></span>
-    		<span class="suit">&{{trump}};</span>
-		</div>
+</br>
+<style>
+    .flex-container {
+        display: flex;
+    }
 
-	Partners:
-	{%for i in partner_cards%}
-		<div class="card rank-{{i[1]}} {{i[0]}}">
-    		<span class="rank">{{i[1]}}</span>
-    		<span class="suit">&{{i[0]}};</span>
-		</div>
-	{%endfor%}
-	</div>
-</h2>
+    .flex-child {
+        flex: 1;
+
+    }
+
+    .flex-child:first-child {
+        margin-right: 20px;
+    }
+</style>
+{%if past_rounds|length > 0%}
+<div class="flex-container" style="overflow: scroll;padding-left: 30px;">
+    Last Round:</br>
+
+    <div class="flex-child" >
+        <div class="playingCards faceImages rotateHand" style="width: 100px;">
+            <ul class="hand">
+                {%for card in past_rounds[0]%}
+                <li><span class="card {{card.suit}}" href="/make_move/{{card.suit}}/{{card.value}}/{{round_id}}">
+                        <span class="rank">{{card.value}}</span>
+                        <span class="suit">&{{card.suit}};</span>
+                    </span>
+                </li>
+                {%endfor%}
+            </ul>
+        </div>
+    </div>
+
+</div>
+{%endif%}
+
+</br>
+
 
 <script type="text/javascript">
-	function check_next_turn(){
-  $.ajax({
-    url: '/next_turn/{{turn_id}}/{{round_id}}',
-    success:  function(data) {
-      console.log(data);
-      if (data=="True")
-        window.location.href = "/round/{{round_id}}";
-        },
-      timeout: 5000 //If timeout is reached run again
-  });
-}
-setInterval(check_next_turn, 5000);
+    function check_next_turn() {
+        $.ajax({
+            url: '/next_turn/{{turn_id}}/{{round_id}}',
+            success: function (data) {
+                console.log(data);
+                if (data == "True")
+                    window.location.href = "/round/{{round_id}}";
+            },
+            timeout: 5000 //If timeout is reached run again
+        });
+    }
+    setInterval(check_next_turn, 5000);
 </script>
 
 {% endblock %}
 
 <link rel="stylesheet" type="text/css" href='{{ url_for("static", filename="cards.css") }}'>
-    <!--[if lt IE 9]>
+<!--[if lt IE 9]>
         <link rel="stylesheet" type="text/css" href="cards-ie.css" media="screen" />
     <![endif]-->
-    <!--[if IE 9]>
+<!--[if IE 9]>
         <link rel="stylesheet" type="text/css" href="cards-ie9.css" media="screen" />
     <![endif]-->
-    <!-- the following js and css is not part of the CSS cards, but only for this example page -->
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
-    <script type="text/javascript"><!--
-    $(document).ready(function(){
-        $('.options').addClass('active');
-        $('.toggle li').click(function(){
-            $('.playingCards').toggleClass($(this).text());
+<!-- the following js and css is not part of the CSS cards, but only for this example page -->
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+<script type="text/javascript">< !--
+        $(document).ready(function () {
+            $('.options').addClass('active');
+            $('.toggle li').click(function () {
+                $('.playingCards').toggleClass($(this).text());
+            });
+            $('.lang li').click(function () {
+                $('html').attr('lang', $(this).text());
+                $('html').attr('xml:lang', $(this).text());
+            });
         });
-        $('.lang li').click(function(){
-            $('html').attr('lang', $(this).text());
-            $('html').attr('xml:lang', $(this).text());
-        });
-    });
     //--></script>
-    <style type="text/css">
-        .options.active {
-            position: fixed;
-            top: 1em;
-            right: 1em;
-            background: #ddd;
-            padding: .5em;
-        }
-        .options.active h3 {
-            font-size: 1.2em;
-        }
-        .options.active ul {
-            padding: 0;
-        }
-        .options.active li {
-            color: #00c;
-            text-decoration: underline;
-            margin-left: 1.5em;
-            cursor: pointer;
-        }
-        .options.active li:hover {
-            text-decoration: none;
-        }
-        div.clear {
-            clear: both;
-            height: 0;
-            line-height: 0;
-            font-size: 1px;
-            visibility: hidden;
-        }
-       .inactiveLink {
+<style type="text/css">
+    .options.active {
+        position: fixed;
+        top: 1em;
+        right: 1em;
+        background: #ddd;
+        padding: .5em;
+    }
+
+    .options.active h3 {
+        font-size: 1.2em;
+    }
+
+    .options.active ul {
+        padding: 0;
+    }
+
+    .options.active li {
+        color: #00c;
+        text-decoration: underline;
+        margin-left: 1.5em;
+        cursor: pointer;
+    }
+
+    .options.active li:hover {
+        text-decoration: none;
+    }
+
+    div.clear {
+        clear: both;
+        height: 0;
+        line-height: 0;
+        font-size: 1px;
+        visibility: hidden;
+    }
+
+    .inactiveLink {
         pointer-events: none;
         cursor: default;
-        } 
-    </style>
+    }
+</style>

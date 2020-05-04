@@ -9,9 +9,12 @@ cards = []
 hands = []
 bidders = []
 rounds = []
+past_rounds = []
 game = Game()
 game_started = False
 bidding_completed = False
+bid_winner = ""
+bid_winner_index = 0
 partner_chosen = False
 player_order = []
 player_shift = 0
@@ -218,7 +221,9 @@ def post_choose_trump_and_partner():
 	temp1.extend(player_order[:bidder_index])
 	
 	player_order = temp1
-	
+	global bid_winner, bid_winner_index
+	bid_winner = bidder
+	bid_winner_index = bidder_index
 	rounds.append(Round(starting_player=bidder))
 	
 	return redirect(url_for('app_game.play_round', round_id=1))
@@ -232,8 +237,10 @@ def check_selection():
 @app_game.route('/round/<int:round_id>')
 @login_required
 def play_round(round_id):
-	global player_order, player_shift, game, rounds, cards, players
+	global player_order, player_shift, game, rounds, cards, players, past_rounds, bid_winner
 
+	print ("game", game , "rounds", rounds)
+	
 	print(len(rounds[round_id-1].cards), len(rounds), round_id)
 
 	partners = game.partners
@@ -246,6 +253,7 @@ def play_round(round_id):
 	table_cards = get_round(round_id)
 
 	if len(player_order) <= player_shift:
+		past_rounds.insert(0,table_cards)
 		winner = 0
 		start_suit = table_cards[0].suit
 		for i, card in enumerate(table_cards):
@@ -261,7 +269,7 @@ def play_round(round_id):
 		rounds[round_id-1].points = sum(i.points for i in table_cards)
 		number_of_rounds = len(cards)/len(players)
 		
-		if round_id > number_of_rounds:
+		if round_id >= number_of_rounds:
 			return redirect(url_for('app_game.display_results'))
 		
 		print(rounds, len(rounds), round_id)
@@ -275,7 +283,7 @@ def play_round(round_id):
 
 	activityClass = "" if current_user.name == player_order[player_shift] else "inactiveLink"
 
-	return render_template('round.html', round_id=round_id, cards=sorted(hand.cards, key=lambda x:(x.suit, x.value)), trump=game.trump, partner_cards=partner_cards, table_cards=table_cards, activityClass=activityClass, turn_id=player_shift)
+	return render_template('round.html', round_id=round_id, cards=sorted(hand.cards, key=lambda x:(x.suit, x.value)), trump=game.trump, partner_cards=partner_cards, table_cards=table_cards, activityClass=activityClass, turn_id=player_shift, past_rounds=past_rounds, player_order=player_order, bid_winner= bid_winner)
 
 def get_order(round_id):
 	global player_order, rounds
@@ -317,12 +325,14 @@ def make_move(suit, value, round_id):
 @login_required
 def check_next_turn(previos_player, round_id):
 	global player_shift, rounds, players
+	if round_id > len(rounds):
+		return redirect(url_for('app_game.end_game', round_id=round_id))
 	return str(player_shift != previos_player or len(players)==len(rounds[round_id-1].cards))
 
 @app_game.route('/end_game')
 @login_required
 def end_game():
-	global game_started, players, cards, game, hands
+	global players ,cards ,hands ,bidders ,rounds ,game ,game_started ,bidding_completed ,partner_chosen ,player_order ,past_rounds ,player_shift, bid_winner, bid_winner_index
 	players = []
 	cards = []
 	hands = []
@@ -333,24 +343,32 @@ def end_game():
 	bidding_completed = False
 	partner_chosen = False
 	player_order = []
+	bid_winner = ""
+	past_rounds = []
 	player_shift = 0
+	bid_winner_index = 0
 	return redirect(url_for('app_game.list_players'))
 
 @app_game.route('/display_results')
 @login_required
 def display_results():
-	global players, rounds, game
+	global players, rounds, game, bid_winner_index
 	player_points = {i:0 for i in players}
-
 	for round in rounds:
 		player_points[round.winner] += round.points
 
 	team_bidder = 0
+
+	print players, player_points
 	partner_found = set()
+	if players[bid_winner_index] not in partner_found:
+			team_bidder += player_points[players[bid_winner_index]]
+			partner_found.add(players[bid_winner_index])
 	for i in game.partners:
 		if i.partner.player not in partner_found:
 			team_bidder += player_points[i.partner.player]
 			partner_found.add(i.partner.player)
+		
 
 	message = "Partners got " + str(team_bidder) + " points!"
 	if team_bidder > game.bid:

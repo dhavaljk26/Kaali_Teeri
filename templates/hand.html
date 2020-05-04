@@ -1,69 +1,104 @@
 <link rel="stylesheet" type="text/css" href='{{ url_for("static", filename="cards.css") }}'>
-    <!--[if lt IE 9]>
+<!--[if lt IE 9]>
         <link rel="stylesheet" type="text/css" href="cards-ie.css" media="screen" />
     <![endif]-->
-    <!--[if IE 9]>
+<!--[if IE 9]>
         <link rel="stylesheet" type="text/css" href="cards-ie9.css" media="screen" />
     <![endif]-->
-    <!-- the following js and css is not part of the CSS cards, but only for this example page -->
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
-    <script type="text/javascript"><!--
-    $(document).ready(function(){
-        $('.options').addClass('active');
-        $('.toggle li').click(function(){
-            $('.playingCards').toggleClass($(this).text());
+<!-- the following js and css is not part of the CSS cards, but only for this example page -->
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+<script type="text/javascript">< !--
+        $(document).ready(function () {
+            $('.options').addClass('active');
+            $('.toggle li').click(function () {
+                $('.playingCards').toggleClass($(this).text());
+            });
+            $('.lang li').click(function () {
+                $('html').attr('lang', $(this).text());
+                $('html').attr('xml:lang', $(this).text());
+            });
         });
-        $('.lang li').click(function(){
-            $('html').attr('lang', $(this).text());
-            $('html').attr('xml:lang', $(this).text());
-        });
-    });
     //--></script>
-    <style type="text/css">
-        .options.active {
-            position: fixed;
-            top: 1em;
-            right: 1em;
-            background: #ddd;
-            padding: .5em;
-        }
-        .options.active h3 {
-            font-size: 1.2em;
-        }
-        .options.active ul {
-            padding: 0;
-        }
-        .options.active li {
-            color: #00c;
-            text-decoration: underline;
-            margin-left: 1.5em;
-            cursor: pointer;
-        }
-        .options.active li:hover {
-            text-decoration: none;
-        }
-        div.clear {
-            clear: both;
-            height: 0;
-            line-height: 0;
-            font-size: 1px;
-            visibility: hidden;
-        }
-       .inactiveLink {
+<style type="text/css">
+    .options.active {
+        position: fixed;
+        top: 1em;
+        right: 1em;
+        background: #ddd;
+        padding: .5em;
+    }
+
+    .options.active h3 {
+        font-size: 1.2em;
+    }
+
+    .options.active ul {
+        padding: 0;
+    }
+
+    .options.active li {
+        color: #00c;
+        text-decoration: underline;
+        margin-left: 1.5em;
+        cursor: pointer;
+    }
+
+    .options.active li:hover {
+        text-decoration: none;
+    }
+
+    div.clear {
+        clear: both;
+        height: 0;
+        line-height: 0;
+        font-size: 1px;
+        visibility: hidden;
+    }
+
+    .inactiveLink {
         pointer-events: none;
         cursor: default;
-        } 
-    </style>
-<div class="column is-4 is-offset-4">
-<div class="playingCards faceImages rotateHand">
-<ul class="{{activityClass}} hand">
-  	{%for card in cards%}
-  		<li><a class="card rank-{{card.value}} {{card.suit}}" href="/make_move/{{card.suit}}/{{card.value}}/{{round_id}}">
-  			<span class="rank">{{card.value}}</span>
-  			<span class="suit">&{{card.suit}};</span>
-  		</a>
-  	</li>
-  	{%endfor%}
- </ul>
-</div>
+    }
+
+    @media (min-width: 801px) {
+        .mobile {
+            display: none;
+        }
+    }
+
+    @media (max-width: 800px) {
+        .desktop {
+            display: none;
+        }
+    }
+</style>
+<div style="padding-left: 30px;width: 100%;overflow: scroll;">
+    Hand:
+    <div class="desktop">
+        <div class="playingCards faceImages">
+            <ul class="{{activityClass}} hand">
+                {%for card in cards%}
+                <li><a class="card {{card.suit}}" href="/make_move/{{card.suit}}/{{card.value}}/{{round_id}}">
+                        <span class="rank">{{card.value}}</span>
+                        <span class="suit">&{{card.suit}};</span>
+                    </a>
+                </li>
+                {%endfor%}
+            </ul>
+        </div>
+    </div>
+    <div class="mobile">
+        <div class="playingCards faceImages">
+            <ul class="{{activityClass}} table">
+                {%for card in cards%}
+                <li><a class="card {{card.suit}}" href="/make_move/{{card.suit}}/{{card.value}}/{{round_id}}">
+                        <span class="rank">{{card.value}}</span>
+                        <span class="suit">&{{card.suit}};</span>
+                    </a>
+                </li>
+                {%endfor%}
+            </ul>
+        </div>
+
+    </div>
 </div>
