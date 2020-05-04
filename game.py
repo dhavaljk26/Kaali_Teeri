@@ -97,8 +97,6 @@ def create_deck(number_of_decks, number_of_players):
 def distribute_cards():
 	global players, cards, hands
 	
-	print(len(players))
-
 	number_of_players = len(players)
 	
 	if number_of_players > 4:
@@ -239,10 +237,6 @@ def check_selection():
 def play_round(round_id):
 	global player_order, player_shift, game, rounds, cards, players, past_rounds, bid_winner
 
-	print ("game", game , "rounds", rounds)
-	
-	print(len(rounds[round_id-1].cards), len(rounds), round_id)
-
 	partners = game.partners
 	partner_cards = []
 	for partner in partners:
@@ -272,9 +266,7 @@ def play_round(round_id):
 		if round_id >= number_of_rounds:
 			return redirect(url_for('app_game.display_results'))
 		
-		print(rounds, len(rounds), round_id)
 		rounds.append(Round(starting_player=player_order[winner], cards=[]))
-		print(rounds, len(rounds), round_id)
 		player_shift = 0
 		get_order(round_id+1) 
 
