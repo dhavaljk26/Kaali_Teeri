@@ -84,10 +84,10 @@ def create_deck(number_of_decks, number_of_players):
 
 	for suit in suits:
 		for point_index,value in enumerate(values):
-			if values == '3' and suits == 'spades':
-				card = Card(suit = suit, valur = value, points = 30)
+			if value == '3' and suit == 'spades':
+				card = Card(suit = suit, value = value, points = 30)
 				cards.append(card)
-			elif values == '2' and number_of_removed_cards > 0:
+			elif value == '2' and number_of_removed_cards > 0:
 				continue
 			else:
 				card = Card(suit = suit, value = value, points = points[point_index])
@@ -224,7 +224,7 @@ def post_choose_trump_and_partner():
 	global bid_winner, bid_winner_index
 	bid_winner = bidder
 	bid_winner_index = bidder_index
-	rounds.append(Round(starting_player=bidder))
+	rounds.append(Round(starting_player=bidder, cards=[]))
 	
 	return redirect(url_for('app_game.play_round', round_id=1))
 
@@ -332,19 +332,19 @@ def check_next_turn(previos_player, round_id):
 @app_game.route('/end_game')
 @login_required
 def end_game():
-	global players ,cards ,hands ,bidders ,rounds ,game ,game_started ,bidding_completed ,partner_chosen ,player_order ,past_rounds ,player_shift, bid_winner, bid_winner_index
-	players = []
-	cards = []
-	hands = []
-	bidders = []
-	rounds = []
+	global players, cards, hands, bidders, rounds, game, game_started, bidding_completed, partner_chosen, player_order, bid_winner, past_rounds, player_shift, bid_winner_index
+	del players[:]
+	del cards[:]
+	del hands[:]
+	del bidders[:]
+	del rounds[:]
 	game = Game()
 	game_started = False
 	bidding_completed = False
 	partner_chosen = False
-	player_order = []
+	del player_order[:]
 	bid_winner = ""
-	past_rounds = []
+	del past_rounds[:]
 	player_shift = 0
 	bid_winner_index = 0
 	return redirect(url_for('app_game.list_players'))
@@ -359,7 +359,6 @@ def display_results():
 
 	team_bidder = 0
 
-	print players, player_points
 	partner_found = set()
 	if players[bid_winner_index] not in partner_found:
 			team_bidder += player_points[players[bid_winner_index]]
