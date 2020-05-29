@@ -82,16 +82,18 @@ def create_deck(number_of_decks, number_of_players):
 
 	points = [10, 0, 0, 0, 5, 0, 0, 0, 0, 10, 10, 10, 10]
 
-	for suit in suits:
-		for point_index,value in enumerate(values):
-			if value == '3' and suit == 'spades':
-				card = Card(suit = suit, value = value, points = 30)
-				cards.append(card)
-			elif value == '2' and number_of_removed_cards > 0:
-				continue
-			else:
-				card = Card(suit = suit, value = value, points = points[point_index])
-				cards.append(card)
+	for i in range(number_of_decks):
+		for suit in suits:
+			for point_index,value in enumerate(values):
+				if value == '3' and suit == 'spades':
+					card = Card(suit = suit, value = value, points = 30)
+					cards.append(card)
+				elif value == '2' and number_of_removed_cards > 0:
+					number_of_removed_cards -= 1
+					continue
+				else:
+					card = Card(suit = suit, value = value, points = points[point_index])
+					cards.append(card)
 
 
 def distribute_cards():
@@ -143,7 +145,7 @@ def bid_post():
 	if bidding_completed == False:
 		hand = get_hand()
 		if current_user.name in bidders == True:
-			return render_template('bid.html', already_bid=current_user.name in bidders, cards=sorted(hand.cards, key=lambda x:(x.suit, x.value)))
+			return render_template('bid.html', already_bid=(current_user.name in bidders), cards=sorted(hand.cards, key=lambda x:(x.suit, x.value)))
 		bid_points = int(request.form.get('bid'))
 		
 		if bid_points == -1:
@@ -290,12 +292,22 @@ def get_order(round_id):
 def make_move(suit, value, round_id):
 	global player_shift, player_order, rounds, hands, game, cards
 	
+	hand = get_hand()
+
 	card = [card for card in cards if (card.suit==suit and card.value==value)][0]
+
+	used_card_index = [i for i, card in enumerate(hand.cards) if (card.suit==suit and card.value==value)]
+
+	if len(used_card_index)==0:
+		return redirect(url_for('app_game.play_round', round_id=round_id))
+
+	else:
+		used_card_index = used_card_index[0]
+
 	rounds[round_id-1].cards.append(card) 
 	table_cards = get_round(round_id)
 	player_shift += 1
-	hand = get_hand()
-	used_card_index = [i for i, card in enumerate(hand.cards) if (card.suit==suit and card.value==value)][0]
+	
 	hand.cards.pop(used_card_index)
 
 	partner_i = [i for i in game.partners if (i.suit==suit and i.value==value)]
@@ -330,7 +342,7 @@ def end_game():
 	del hands[:]
 	del bidders[:]
 	del rounds[:]
-	game = Game()
+	game = Game(bidder="", partners=[], bid=-1, trump="")
 	game_started = False
 	bidding_completed = False
 	partner_chosen = False
@@ -352,19 +364,20 @@ def display_results():
 	team_bidder = 0
 
 	partner_found = set()
-	if players[bid_winner_index] not in partner_found:
-			team_bidder += player_points[players[bid_winner_index]]
-			partner_found.add(players[bid_winner_index])
+	team_bidder += player_points[players[bid_winner_index]]
+	partner_found.add(players[bid_winner_index])
+	
 	for i in game.partners:
-		if i.partner.player not in partner_found:
-			team_bidder += player_points[i.partner.player]
+		if i.player not in partner_found:
+			team_bidder += player_points[i.player]
 			partner_found.add(i.partner.player)
 		
 
 	message = "Partners got " + str(team_bidder) + " points!"
+
 	if team_bidder > game.bid:
 		winner_message = "Partners Won!"
 	else:
 		winner_message = "Non-partners Won!"
 
-	return render_template("display_results.html", message=message, winner_message=winner_message)
+	return render_template("display_results.html", message=message, winner_message=winner_message, player_points=player_points)
