@@ -18,6 +18,8 @@ bid_winner_index = 0
 partner_chosen = False
 player_order = []
 player_shift = 0
+player_points = {}
+
 rank = {}
 for i in range(2,11):
 	rank[str(i)] = i-1
@@ -140,7 +142,7 @@ def bid():
 @login_required
 def bid_post():
 	
-	global bidders, players, game
+	global bidders, players, game, bidding_completed
 
 	if bidding_completed == False:
 		hand = get_hand()
@@ -199,7 +201,7 @@ def choose_trump_and_partner():
 @app_game.route('/trump_and_partner', methods=['POST'])
 @login_required
 def post_choose_trump_and_partner():
-	global partner_chosen, player_order, game, players, rounds
+	global partner_chosen, player_order, game, players, rounds, player_points
 	
 	trump = request.form.get('trump')
 	game.trump = trump
@@ -225,6 +227,9 @@ def post_choose_trump_and_partner():
 	bid_winner = bidder
 	bid_winner_index = bidder_index
 	rounds.append(Round(starting_player=bidder, cards=[]))
+
+	for i in players:
+		player_points[i] = 0
 	
 	return redirect(url_for('app_game.play_round', round_id=1))
 
@@ -237,7 +242,7 @@ def check_selection():
 @app_game.route('/round/<int:round_id>')
 @login_required
 def play_round(round_id):
-	global player_order, player_shift, game, rounds, cards, players, past_rounds, bid_winner
+	global player_order, player_shift, game, rounds, cards, players, past_rounds, bid_winner, player_points
 
 	partners = game.partners
 	partner_cards = []
@@ -263,6 +268,7 @@ def play_round(round_id):
 		
 		rounds[round_id-1].winner = player_order[winner]
 		rounds[round_id-1].points = sum(i.points for i in table_cards)
+		player_points[rounds[round_id-1].winner] += rounds[round_id-1].points
 		number_of_rounds = len(cards)/len(players)
 		
 		if round_id >= number_of_rounds:
@@ -277,7 +283,7 @@ def play_round(round_id):
 
 	activityClass = "" if current_user.name == player_order[player_shift] else "inactiveLink"
 
-	return render_template('round.html', round_id=round_id, cards=sorted(hand.cards, key=lambda x:(x.suit, x.value)), trump=game.trump, partner_cards=partner_cards, table_cards=table_cards, activityClass=activityClass, turn_id=player_shift, past_rounds=past_rounds, player_order=player_order, bid_winner= bid_winner)
+	return render_template('round.html', round_id=round_id, cards=sorted(hand.cards, key=lambda x:(x.suit, x.value)), trump=game.trump, partner_cards=partner_cards, table_cards=table_cards, activityClass=activityClass, turn_id=player_shift, past_rounds=past_rounds, player_order=player_order, bid_winner= bid_winner, bid=game.bid, player_points=player_points)
 
 def get_order(round_id):
 	global player_order, rounds
@@ -336,12 +342,13 @@ def check_next_turn(previos_player, round_id):
 @app_game.route('/end_game')
 @login_required
 def end_game():
-	global players, cards, hands, bidders, rounds, game, game_started, bidding_completed, partner_chosen, player_order, bid_winner, past_rounds, player_shift, bid_winner_index
+	global players, cards, hands, bidders, rounds, game, game_started, bidding_completed, partner_chosen, player_order, bid_winner, past_rounds, player_shift, bid_winner_index, player_points
 	del players[:]
 	del cards[:]
 	del hands[:]
 	del bidders[:]
 	del rounds[:]
+	player_points = {}
 	game = Game(bidder="", partners=[], bid=-1, trump="")
 	game_started = False
 	bidding_completed = False
@@ -370,7 +377,7 @@ def display_results():
 	for i in game.partners:
 		if i.player not in partner_found:
 			team_bidder += player_points[i.player]
-			partner_found.add(i.partner.player)
+			partner_found.add(i.player)
 		
 
 	message = "Partners got " + str(team_bidder) + " points!"
