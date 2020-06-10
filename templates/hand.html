@@ -7,7 +7,8 @@
     <![endif]-->
 <!-- the following js and css is not part of the CSS cards, but only for this example page -->
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
-<script type="text/javascript">< !--
+<script type="text/javascript">
+    // < !--
         $(document).ready(function () {
             $('.options').addClass('active');
             $('.toggle li').click(function () {
@@ -78,7 +79,12 @@
         <div class="playingCards faceImages">
             <ul class="{{activityClass}} hand">
                 {%for card in cards%}
-                <li><a class="card {{card.suit}}" href="/make_move/{{card.suit}}/{{card.value}}/{{round_id}}">
+                {% if suit_exists and card.suit!=table_cards[0].suit %}
+                <li class="inactiveLink">
+                {% else %}
+                <li>
+                {%endif%}
+                    <a class="card {{card.suit}}" href="/make_move/{{card.suit}}/{{card.value}}/{{round_id}}">
                         <span class="rank">{{card.value}}</span>
                         <span class="suit">&{{card.suit}};</span>
                     </a>
@@ -91,7 +97,7 @@
         <div class="playingCards faceImages">
             <ul class="{{activityClass}} table">
                 {%for card in cards%}
-                <li><a class="card {{card.suit}}" href="/make_move/{{card.suit}}/{{card.value}}/{{round_id}}">
+                <li class="{{card.suit}}"><a class="card {{card.suit}}" href="/make_move/{{card.suit}}/{{card.value}}/{{round_id}}">
                         <span class="rank">{{card.value}}</span>
                         <span class="suit">&{{card.suit}};</span>
                     </a>
@@ -102,3 +108,7 @@
 
     </div>
 </div>
+
+<script type="text/javascript">
+    console.log("{{suit_exists}}")
+</script>

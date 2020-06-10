@@ -258,11 +258,11 @@ def play_round(round_id):
 		winner = 0
 		start_suit = table_cards[0].suit
 		for i, card in enumerate(table_cards):
-			if card.suit==start_suit and rank[card.value]>rank[table_cards[winner].value]:
+			if card.suit==start_suit and rank[card.value] >= rank[table_cards[winner].value]:
 				winner = i
 		flag = 0
 		for i, card in enumerate(table_cards):
-			if card.suit == game.trump and (flag==0 or rank[card.value] > rank[table_cards[winner].value]):
+			if card.suit == game.trump and (flag==0 or rank[card.value] >= rank[table_cards[winner].value]):
 				winner = i
 				flag=1
 		
@@ -283,7 +283,13 @@ def play_round(round_id):
 
 	activityClass = "" if current_user.name == player_order[player_shift] else "inactiveLink"
 
-	return render_template('round.html', round_id=round_id, cards=sorted(hand.cards, key=lambda x:(x.suit, x.value)), trump=game.trump, partner_cards=partner_cards, table_cards=table_cards, activityClass=activityClass, turn_id=player_shift, past_rounds=past_rounds, player_order=player_order, bid_winner= bid_winner, bid=game.bid, player_points=player_points)
+	suit_exists = False
+	if len(table_cards) > 0:
+		truth_array = [i.suit==table_cards[0].suit for i in hand.cards]
+		suit_exists = any(truth_array)
+
+
+	return render_template('round.html', round_id=round_id, cards=sorted(hand.cards, key=lambda x:(x.suit, x.value)), trump=game.trump, partner_cards=partner_cards, table_cards=table_cards, activityClass=activityClass, turn_id=player_shift, past_rounds=past_rounds, player_order=player_order, bid_winner= bid_winner, bid=game.bid, player_points=player_points, suit_exists=suit_exists)
 
 def get_order(round_id):
 	global player_order, rounds
@@ -304,7 +310,7 @@ def make_move(suit, value, round_id):
 
 	used_card_index = [i for i, card in enumerate(hand.cards) if (card.suit==suit and card.value==value)]
 
-	if len(used_card_index)==0:
+	if len(used_card_index)==0 or current_user.name != player_order[player_shift]:
 		return redirect(url_for('app_game.play_round', round_id=round_id))
 
 	else:
