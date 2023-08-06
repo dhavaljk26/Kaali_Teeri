@@ -1,1 +1,1 @@
-web: flask -e .env run --host=0.0.0.0 --port=$PORT
+web: pwd && ls -la && flask -e .env run --host=0.0.0.0 --port=$PORT
