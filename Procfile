@@ -1,1 +1,1 @@
-web: cd .. && flask --app Kaali_Teeri run --host=0.0.0.0 --port=$PORT
+web: flask -e .env run --host=0.0.0.0 --port=$PORT
