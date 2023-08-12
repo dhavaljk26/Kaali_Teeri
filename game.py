@@ -88,7 +88,7 @@ def create_deck(number_of_decks, number_of_players):
     for i in range(number_of_decks):
         for suit in suits:
             for point_index, value in enumerate(values):
-                if value == '3' and suit == 'spades':
+                if value == '3' and suit == 'spades' and not playing_mindi:
                     card = Card(suit=suit, value=value, points=30)
                     cards.append(card)
                 elif value == '2' and number_of_removed_cards > 0:
