@@ -21,6 +21,7 @@ player_points = {}
 playing_mindi = False
 is_clear_timer = False
 
+
 rank = {}
 for i in range(2, 11):
     rank[str(i)] = i - 1
@@ -67,6 +68,7 @@ def game_query():
 def start_game():
     global game_started, playing_mindi
     playing_mindi = False
+
     if game_started == False:
         game_started = True
         distribute_cards()
@@ -198,6 +200,7 @@ def bid():
         return redirect(url_for('app_game.play_round', round_id=1))
     already_bid = current_user.name in bidders
     hand = get_hand()
+
     return render_template('bid.html', already_bid=already_bid, is_clear_timer = is_clear_timer,
                            cards=sorted(hand.cards, key=lambda x: (x.suit, x.value)), activityClass="inactiveLink")
 
@@ -206,6 +209,7 @@ def bid():
 @login_required
 def bid_post():
     global bidders, players, game, bidding_completed, is_clear_timer
+
 
     if bidding_completed == False:
         hand = get_hand()
