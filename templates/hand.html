@@ -97,7 +97,12 @@
         <div class="playingCards faceImages">
             <ul class="{{activityClass}} table">
                 {%for card in cards%}
-                <li class="{{card.suit}}"><a class="card {{card.suit}}" href="/make_move/{{card.suit}}/{{card.value}}/{{round_id}}">
+                {% if suit_exists and card.suit!=table_cards[0].suit %}
+                <li class="inactiveLink">
+                {% else %}
+                <li>
+                {%endif%}
+                    <a class="card {{card.suit}}" href="/make_move/{{card.suit}}/{{card.value}}/{{round_id}}">
                         <span class="rank">{{card.value}}</span>
                         <span class="suit">&{{card.suit}};</span>
                     </a>
@@ -110,5 +115,4 @@
 </div>
 
 <script type="text/javascript">
-    console.log("{{suit_exists}}")
 </script>

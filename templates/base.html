@@ -82,6 +82,11 @@
                 Players
             </a>
             {% endif %}
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('app_game.choose_trump_and_partner') }}" class="navbar-item">
+                Choose trump and partner
+            </a>
+            {% endif %}
             {% if not current_user.is_authenticated %}
             <a href="{{ url_for('auth.login') }}" class="navbar-item">
                 Login
