@@ -30,6 +30,8 @@
     <span>None</span>
     {%endif%}
 
+    <a href="{{ url_for('app_game.end_game')}}"><button>End Game</button></a>
+
 </div>
 
 <span style="padding-left: 30px;">Player Order:</span>
@@ -116,6 +118,22 @@
         });
     }
     setInterval(check_next_turn, 1000);
+</script>
+
+<script type="text/javascript">
+    function check_end_game() {
+        $.ajax({
+            url: '/check_end_game',
+            success: function (data) {
+                console.log(data);
+                if (data == "True")
+                    window.location.href = "/players";
+            },
+            timeout: 1000 //If timeout is reached run again
+        });
+    }
+    setInterval(check_end_game, 1000);
+
 </script>
 
 {% endblock %}

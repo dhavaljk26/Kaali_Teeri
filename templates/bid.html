@@ -15,22 +15,28 @@
 
             <button class="button is-block is-info is-fullwidth" id="sendBid">Place Bid</button>
         </form>
+        <form method="POST" action="/toggle_clear_timer">
+          <button class="button is-block is-info is-fullwidth" id="toggleTimer">Toggle Timer</button>
+        </form>
+        
     </div>
     {%endif%}
 
   </div>
   {% include "hand.html"%}
 
+  {%if is_clear_timer==False%}	
 <script src='{{ url_for("static", filename="counter.js") }}'></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <link rel="stylesheet" type="text/css" href='{{ url_for("static", filename="counter.css") }}'>
+{%endif%}
 <script type="text/javascript">
 	function check_bidding(){
   $.ajax({
     url: '/bidding_completed',
     success:  function(data) {
       console.log(data);
-      if (data=="True")
+      if (data=="True" )
         window.location.href = "/trump_and_partner";
         },
       timeout: 30000 //If timeout is reached run again
@@ -38,4 +44,5 @@
 }
 setInterval(check_bidding, 30000);
 </script>
+
 {% endblock %}
