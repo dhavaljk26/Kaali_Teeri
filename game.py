@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request
 from flask_login import login_required, current_user
 import random
+from .scorecard import *
 from .models import Card, Game, Hand, Partner, Round
 
 
@@ -51,7 +52,7 @@ def add_player():
 		return redirect(url_for('app_game.list_players'))
 
 	players.append(current_user.name)
-
+	add_player_to_db(current_user.name)
 	return redirect(url_for('app_game.list_players'))
 
 
@@ -289,7 +290,7 @@ def play_round(round_id):
 		suit_exists = any(truth_array)
 
 
-	return render_template('round.html', round_id=round_id, cards=sorted(hand.cards, key=lambda x:(x.suit, x.value)), trump=game.trump, partner_cards=partner_cards, table_cards=table_cards, activityClass=activityClass, turn_id=player_shift, past_rounds=past_rounds, player_order=player_order, bid_winner= bid_winner, bid=game.bid, player_points=player_points, suit_exists=suit_exists)
+	return render_template('round.html', round_id=round_id, cards=sorted(hand.cards, key=lambda x:(x.suit, x.value)), trump=game.trump, partner_cards=partner_cards, table_cards=table_cards, activityClass=activityClass, turn_id=player_shift, past_rounds=past_rounds, player_order=player_order, bid_winner= bid_winner, bid=game.bid, player_points=player_points, suit_exists=suit_exists, lifetime_scores=lifetime_scores)
 
 def get_order(round_id):
 	global player_order, rounds
@@ -389,8 +390,10 @@ def display_results():
 	message = "Partners got " + str(team_bidder) + " points!"
 
 	if team_bidder > game.bid:
+		add_fixed_scores_from_current_game(2*game.bid,partner_found)
 		winner_message = "Partners Won!"
 	else:
+		add_fixed_scores_from_current_game(-game.bid,partner_found)
 		winner_message = "Non-partners Won!"
 
 	return render_template("display_results.html", message=message, winner_message=winner_message, player_points=player_points)
