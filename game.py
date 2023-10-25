@@ -350,6 +350,33 @@ def check_next_turn(previos_player, round_id):
 @login_required
 def end_game():
 	global players, cards, hands, bidders, rounds, game, game_started, bidding_completed, partner_chosen, player_order, bid_winner, past_rounds, player_shift, bid_winner_index, player_points
+	factor = 0
+	url_params = request.args
+	game_winner = url_params.get('winner','')
+	print(game_winner)
+	if (game_winner == "p"):
+		factor = 2
+	elif (game_winner == "np"):
+		factor = -2
+	elif (game_winner == "draw"):
+		factor = 0
+	else:
+		return render_template('end_game_popup.html')
+
+	try:
+		partner_found = set()
+		print(players, bid_winner_index)
+		partner_found.add(players[bid_winner_index])
+		add_fixed_scores_from_current_game(factor*game.bid,partner_found)
+		partner_found.remove(players[bid_winner_index])
+		for i in game.partners:
+			if i.player not in partner_found:
+				partner_found.add(i.player)
+		add_fixed_scores_from_current_game(factor*game.bid/2,partner_found)	
+	except Exception as error:
+		print("Scores already added:", error)
+	
+
 	del players[:]
 	del cards[:]
 	del hands[:]
@@ -390,10 +417,20 @@ def display_results():
 	message = "Partners got " + str(team_bidder) + " points!"
 
 	if team_bidder > game.bid:
+		partner_found.remove(players[bid_winner_index])
+		add_fixed_scores_from_current_game(game.bid,partner_found)
+		partner_found.clear()
+		partner_found.add(players[bid_winner_index])
 		add_fixed_scores_from_current_game(2*game.bid,partner_found)
+		partner_found.clear()
 		winner_message = "Partners Won!"
 	else:
+		partner_found.remove(players[bid_winner_index])
 		add_fixed_scores_from_current_game(-game.bid,partner_found)
+		partner_found.clear()
+		partner_found.add(players[bid_winner_index])
+		add_fixed_scores_from_current_game(-2*game.bid,partner_found)
+		partner_found.clear()
 		winner_message = "Non-partners Won!"
 
 	return render_template("display_results.html", message=message, winner_message=winner_message, player_points=player_points)
