@@ -365,7 +365,6 @@ def end_game():
 
 	try:
 		partner_found = set()
-		print(players, bid_winner_index)
 		partner_found.add(players[bid_winner_index])
 		add_fixed_scores_from_current_game(factor*game.bid,partner_found)
 		partner_found.remove(players[bid_winner_index])
