@@ -44,7 +44,7 @@
 <span>,</span>
 
 {%endfor%}
-<div style="padding-left: 30px;width: 100%;overflow: scroll;">
+<div style="padding-left: 30px;width: 100%;overflow: auto;">
     Table:
     <div style="display: table-cell;">
         <div class="playingCards faceImages">
@@ -63,7 +63,15 @@
 </div>
 </br>
 
-{% include "hand.html"%}
+<div style="display: flex; flex-direction: row;">
+    <span style="width: 50%;">
+        {% include "hand.html"%}
+    </span>
+    <span style="width: 50%">
+        {% include "scorecard.html"%}
+    </span>
+</div>
+
 
 </br>
 <style>
@@ -81,7 +89,7 @@
     }
 </style>
 {%if past_rounds|length > 0%}
-<div class="flex-container" style="overflow: scroll;padding-left: 30px;">
+<div class="flex-container" style="overflow: auto;padding-left: 30px;">
     Last Round:</br>
 
     <div class="flex-child" >
@@ -129,7 +137,7 @@
     <![endif]-->
 <!-- the following js and css is not part of the CSS cards, but only for this example page -->
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
-<script type="text/javascript">< !--
+<script type="text/javascript">
         $(document).ready(function () {
             $('.options').addClass('active');
             $('.toggle li').click(function () {
@@ -140,7 +148,7 @@
                 $('html').attr('xml:lang', $(this).text());
             });
         });
-    //--></script>
+</script>
 <style type="text/css">
     .options.active {
         position: fixed;

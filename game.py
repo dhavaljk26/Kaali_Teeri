@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request
 from flask_login import login_required, current_user
 import random
+from .scorecard import *
 from .models import Card, Game, Hand, Partner, Round
 
 
@@ -51,7 +52,7 @@ def add_player():
 		return redirect(url_for('app_game.list_players'))
 
 	players.append(current_user.name)
-
+	add_player_to_db(current_user.name)
 	return redirect(url_for('app_game.list_players'))
 
 
@@ -289,7 +290,7 @@ def play_round(round_id):
 		suit_exists = any(truth_array)
 
 
-	return render_template('round.html', round_id=round_id, cards=sorted(hand.cards, key=lambda x:(x.suit, x.value)), trump=game.trump, partner_cards=partner_cards, table_cards=table_cards, activityClass=activityClass, turn_id=player_shift, past_rounds=past_rounds, player_order=player_order, bid_winner= bid_winner, bid=game.bid, player_points=player_points, suit_exists=suit_exists)
+	return render_template('round.html', round_id=round_id, cards=sorted(hand.cards, key=lambda x:(x.suit, x.value)), trump=game.trump, partner_cards=partner_cards, table_cards=table_cards, activityClass=activityClass, turn_id=player_shift, past_rounds=past_rounds, player_order=player_order, bid_winner= bid_winner, bid=game.bid, player_points=player_points, suit_exists=suit_exists, lifetime_scores=lifetime_scores)
 
 def get_order(round_id):
 	global player_order, rounds
@@ -349,6 +350,32 @@ def check_next_turn(previos_player, round_id):
 @login_required
 def end_game():
 	global players, cards, hands, bidders, rounds, game, game_started, bidding_completed, partner_chosen, player_order, bid_winner, past_rounds, player_shift, bid_winner_index, player_points
+	factor = 0
+	url_params = request.args
+	game_winner = url_params.get('winner','')
+	print(game_winner)
+	if (game_winner == "p"):
+		factor = 2
+	elif (game_winner == "np"):
+		factor = -2
+	elif (game_winner == "draw"):
+		factor = 0
+	else:
+		return render_template('end_game_popup.html')
+
+	try:
+		partner_found = set()
+		partner_found.add(players[bid_winner_index])
+		add_fixed_scores_from_current_game(factor*game.bid,partner_found)
+		partner_found.remove(players[bid_winner_index])
+		for i in game.partners:
+			if i.player not in partner_found:
+				partner_found.add(i.player)
+		add_fixed_scores_from_current_game(factor*game.bid/2,partner_found)	
+	except Exception as error:
+		print("Scores already added:", error)
+	
+
 	del players[:]
 	del cards[:]
 	del hands[:]
@@ -389,8 +416,20 @@ def display_results():
 	message = "Partners got " + str(team_bidder) + " points!"
 
 	if team_bidder > game.bid:
+		partner_found.remove(players[bid_winner_index])
+		add_fixed_scores_from_current_game(game.bid,partner_found)
+		partner_found.clear()
+		partner_found.add(players[bid_winner_index])
+		add_fixed_scores_from_current_game(2*game.bid,partner_found)
+		partner_found.clear()
 		winner_message = "Partners Won!"
 	else:
+		partner_found.remove(players[bid_winner_index])
+		add_fixed_scores_from_current_game(-game.bid,partner_found)
+		partner_found.clear()
+		partner_found.add(players[bid_winner_index])
+		add_fixed_scores_from_current_game(-2*game.bid,partner_found)
+		partner_found.clear()
 		winner_message = "Non-partners Won!"
 
 	return render_template("display_results.html", message=message, winner_message=winner_message, player_points=player_points)
