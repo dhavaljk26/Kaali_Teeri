@@ -349,49 +349,60 @@ def check_next_turn(previos_player, round_id):
 @app_game.route('/end_game')
 @login_required
 def end_game():
-	global players, cards, hands, bidders, rounds, game, game_started, bidding_completed, partner_chosen, player_order, bid_winner, past_rounds, player_shift, bid_winner_index, player_points
-	factor = 0
-	url_params = request.args
-	game_winner = url_params.get('winner','')
-	print(game_winner)
-	if (game_winner == "p"):
-		factor = 2
-	elif (game_winner == "np"):
-		factor = -2
-	elif (game_winner == "draw"):
-		factor = 0
-	else:
-		return render_template('end_game_popup.html')
-
+	scorecard_lock.acquire()
 	try:
-		partner_found = set()
-		partner_found.add(players[bid_winner_index])
-		add_fixed_scores_from_current_game(factor*game.bid,partner_found)
-		partner_found.remove(players[bid_winner_index])
-		for i in game.partners:
-			if i.player not in partner_found:
-				partner_found.add(i.player)
-		add_fixed_scores_from_current_game(factor*game.bid/2,partner_found)	
-	except Exception as error:
-		print("Scores already added:", error)
-	
+		global players, cards, hands, bidders, rounds, game, game_started, bidding_completed, partner_chosen, player_order, bid_winner, past_rounds, player_shift, bid_winner_index, player_points
+		factor = 0
+		if game_started == False:
+			scorecard_lock.release()
+			return redirect(url_for('app_game.list_players'))
+		
+		url_params = request.args
+		game_winner = url_params.get('winner','')
+		print(game_winner)
+		if (game_winner == "p"):
+			factor = 2
+		elif (game_winner == "np"):
+			factor = -2
+		elif (game_winner == "draw"):
+			factor = 0
+		else:
+			scorecard_lock.release()
+			return render_template('end_game_popup.html')
 
-	del players[:]
-	del cards[:]
-	del hands[:]
-	del bidders[:]
-	del rounds[:]
-	player_points = {}
-	game = Game(bidder="", partners=[], bid=-1, trump="")
-	game_started = False
-	bidding_completed = False
-	partner_chosen = False
-	del player_order[:]
-	bid_winner = ""
-	del past_rounds[:]
-	player_shift = 0
-	bid_winner_index = 0
-	return redirect(url_for('app_game.list_players'))
+		try:
+			partner_found = set()
+			partner_found.add(players[bid_winner_index])
+			add_fixed_scores_from_current_game(factor*game.bid,partner_found)
+			partner_found.remove(players[bid_winner_index])
+			for i in game.partners:
+				if i.player not in partner_found:
+					partner_found.add(i.player)
+			add_fixed_scores_from_current_game(factor*game.bid/2,partner_found)	
+		except Exception as error:
+			print("Scores already added:", error)
+		
+
+		del players[:]
+		del cards[:]
+		del hands[:]
+		del bidders[:]
+		del rounds[:]
+		player_points = {}
+		game = Game(bidder="", partners=[], bid=-1, trump="")
+		game_started = False
+		bidding_completed = False
+		partner_chosen = False
+		del player_order[:]
+		bid_winner = ""
+		del past_rounds[:]
+		player_shift = 0
+		bid_winner_index = 0
+		scorecard_lock.release()
+		return redirect(url_for('app_game.list_players'))
+	except Exception as error:
+		scorecard_lock.release()
+		return render_template('end_game_popup.html')
 
 @app_game.route('/display_results')
 @login_required
