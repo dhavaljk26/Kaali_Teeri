@@ -6,7 +6,7 @@
             {%for player in lifetime_scores.keys()%}
             <tr>
                 <td style="text-align: center;">{{player}}</td>
-                <td style="text-align: center;">{{lifetime_scores[player]}}</td>
+                <td style="text-align: center;">{{lifetime_scores.get(player)}}</td>
             </tr>
             {%endfor%}
         </table>
