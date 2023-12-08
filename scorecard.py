@@ -1,4 +1,4 @@
-from threading import *
+from threading import Lock
 
 lifetime_scores = {"Player Name" : "Total Points"}
 scorecard_lock = Lock()
