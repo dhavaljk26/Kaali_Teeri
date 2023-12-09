@@ -12,4 +12,4 @@ def add_fixed_scores_from_current_game(points, player_list):
 
 def add_player_to_db(player):
     if lifetime_scores.get(player) == None:
-        lifetime_scores.update({player:0})    
+        lifetime_scores.update({player: 0.0 })    
