@@ -124,7 +124,6 @@ def distribute_cards():
 
 def get_hand():
 	global hands
-	print(hands)
 	hand = [i for i in hands if i.player == current_user.name][0]
 	return hand
 
