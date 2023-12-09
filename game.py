@@ -124,6 +124,7 @@ def distribute_cards():
 
 def get_hand():
 	global hands
+	print(hands)
 	hand = [i for i in hands if i.player == current_user.name][0]
 	return hand
 
@@ -377,7 +378,8 @@ def end_game():
 			partner_found.remove(players[bid_winner_index])
 			for i in game.partners:
 				if i.player not in partner_found:
-					partner_found.add(i.player)
+					if i.player != '':
+						partner_found.add(i.player)
 			add_fixed_scores_from_current_game(factor*game.bid/2,partner_found)	
 		except Exception as error:
 			print("Scores already added:", error)
@@ -427,20 +429,8 @@ def display_results():
 	message = "Partners got " + str(team_bidder) + " points!"
 
 	if team_bidder > game.bid:
-		partner_found.remove(players[bid_winner_index])
-		add_fixed_scores_from_current_game(game.bid,partner_found)
-		partner_found.clear()
-		partner_found.add(players[bid_winner_index])
-		add_fixed_scores_from_current_game(2*game.bid,partner_found)
-		partner_found.clear()
 		winner_message = "Partners Won!"
 	else:
-		partner_found.remove(players[bid_winner_index])
-		add_fixed_scores_from_current_game(-game.bid,partner_found)
-		partner_found.clear()
-		partner_found.add(players[bid_winner_index])
-		add_fixed_scores_from_current_game(-2*game.bid,partner_found)
-		partner_found.clear()
 		winner_message = "Non-partners Won!"
 
 	return render_template("display_results.html", message=message, winner_message=winner_message, player_points=player_points)
