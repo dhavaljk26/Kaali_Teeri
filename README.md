@@ -9,7 +9,9 @@ pip3 install flask flask-sqlalchemy flask-login
 ## To create the db.sqlite file (database) open a Python Shell/REPL
 ```
 from Kaali_Teeri import db, create_app
-db.create_all(app=create_app())
+app=create_app()
+with app.app_context():
+    db.create_all()
 ```
 
 ## To run the app

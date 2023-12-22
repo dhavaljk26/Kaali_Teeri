@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<marquee>
+<div style="font-size: 26px">
     <span>Trump:</span>
     <span class="suit">&{{trump}};</span>
     <span>{{trump}}</span>
@@ -14,8 +14,6 @@
 
     <span>Bid Points:</span>
     <span>{{bid}};</span>
-
-    <span>;</span>
 
     <span>Partners:</span>
     {%for i in partner_cards%}
@@ -32,22 +30,21 @@
     <span>None</span>
     {%endif%}
 
-
-</marquee>
+</div>
 
 <span style="padding-left: 30px;">Player Order:</span>
 {%for player in player_order%}
 {%if player_order[turn_id] == player%}
 <b>
 {%endif%}
-<span>{{player}}</span><span> : </span><span>{{player_points[player]}}</span>
+<span {%if player in partner_names%} style="color: red" {%endif%}>{{player}}</span><span {%if player in partner_names%} style="color: red" {%endif%}> : </span><span {%if player in partner_names%} style="color: red" {%endif%} >{{player_points[player]}}</span>
 {%if player_order[turn_id] == player%}
 </b>
 {%endif%}
 <span>,</span>
 
 {%endfor%}
-<div style="padding-left: 30px;width: 100%;overflow: scroll;">
+<div style="padding-left: 30px;width: 100%;overflow: auto;">
     Table:
     <div style="display: table-cell;">
         <div class="playingCards faceImages">
@@ -66,7 +63,15 @@
 </div>
 </br>
 
-{% include "hand.html"%}
+<div style="display: flex; flex-direction: row;">
+    <span style="width: 50%;">
+        {% include "hand.html"%}
+    </span>
+    <span style="width: 50%">
+        {% include "scorecard.html"%}
+    </span>
+</div>
+
 
 </br>
 <style>
@@ -84,7 +89,7 @@
     }
 </style>
 {%if past_rounds|length > 0%}
-<div class="flex-container" style="overflow: scroll;padding-left: 30px;">
+<div class="flex-container" style="overflow: auto;padding-left: 30px;">
     Last Round:</br>
 
     <div class="flex-child" >
@@ -115,10 +120,10 @@
                 if (data == "True")
                     window.location.href = "/round/{{round_id}}";
             },
-            timeout: 5000 //If timeout is reached run again
+            timeout: 1000 //If timeout is reached run again
         });
     }
-    setInterval(check_next_turn, 5000);
+    setInterval(check_next_turn, 1000);
 </script>
 
 {% endblock %}
@@ -132,7 +137,7 @@
     <![endif]-->
 <!-- the following js and css is not part of the CSS cards, but only for this example page -->
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
-<script type="text/javascript">< !--
+<script type="text/javascript">
         $(document).ready(function () {
             $('.options').addClass('active');
             $('.toggle li').click(function () {
@@ -143,7 +148,7 @@
                 $('html').attr('xml:lang', $(this).text());
             });
         });
-    //--></script>
+</script>
 <style type="text/css">
     .options.active {
         position: fixed;
