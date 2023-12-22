@@ -37,7 +37,7 @@
 {%if player_order[turn_id] == player%}
 <b>
 {%endif%}
-<span>{{player}}</span><span> : </span><span>{{player_points[player]}}</span>
+<span {%if player in partner_names%} style="color: red" {%endif%}>{{player}}</span><span {%if player in partner_names%} style="color: red" {%endif%}> : </span><span {%if player in partner_names%} style="color: red" {%endif%} >{{player_points[player]}}</span>
 {%if player_order[turn_id] == player%}
 </b>
 {%endif%}

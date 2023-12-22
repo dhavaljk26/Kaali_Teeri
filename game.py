@@ -289,8 +289,9 @@ def play_round(round_id):
 		truth_array = [i.suit==table_cards[0].suit for i in hand.cards]
 		suit_exists = any(truth_array)
 
-
-	return render_template('round.html', round_id=round_id, cards=sorted(hand.cards, key=lambda x:(x.suit, x.value)), trump=game.trump, partner_cards=partner_cards, table_cards=table_cards, activityClass=activityClass, turn_id=player_shift, past_rounds=past_rounds, player_order=player_order, bid_winner= bid_winner, bid=game.bid, player_points=player_points, suit_exists=suit_exists, lifetime_scores=lifetime_scores)
+	partner_names = [i.player for i in game.partners]
+	partner_names.append(game.bidder)
+	return render_template('round.html', round_id=round_id, cards=sorted(hand.cards, key=lambda x:(x.suit, x.value)), trump=game.trump, partner_cards=partner_cards, table_cards=table_cards, activityClass=activityClass, turn_id=player_shift, past_rounds=past_rounds, player_order=player_order, bid_winner= bid_winner, bid=game.bid, player_points=player_points, suit_exists=suit_exists, lifetime_scores=lifetime_scores, partner_names=partner_names)
 
 def get_order(round_id):
 	global player_order, rounds
