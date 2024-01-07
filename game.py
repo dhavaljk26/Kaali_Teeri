@@ -60,7 +60,7 @@ def add_player():
 @login_required
 def game_query():
 	global game_started
-	return str(game_started)	
+	return str(game_started)
 
 
 @app_game.route('/start_game')
@@ -101,9 +101,9 @@ def create_deck(number_of_decks, number_of_players):
 
 def distribute_cards():
 	global players, cards, hands
-	
+
 	number_of_players = len(players)
-	
+
 	if number_of_players > 4:
 		create_deck(2, number_of_players)
 	else:
@@ -142,7 +142,7 @@ def bid():
 @app_game.route('/bid', methods=['POST'])
 @login_required
 def bid_post():
-	
+
 	global bidders, players, game, bidding_completed
 
 	if bidding_completed == False:
@@ -150,19 +150,19 @@ def bid_post():
 		if current_user.name in bidders == True:
 			return render_template('bid.html', already_bid=(current_user.name in bidders), cards=sorted(hand.cards, key=lambda x:(x.suit, x.value)))
 		bid_points = int(request.form.get('bid'))
-		
+
 		if bid_points == -1:
 			number_of_players = len(players)
 			bid_points = 150 if number_of_players <= 4 else 270
-		
+
 		if game.bidder=="" or game.bid < bid_points:
 			game.bid = bid_points
 			game.bidder = current_user.name
-		
+
 		bidders.append(current_user.name)
 
 		return render_template('bid.html', already_bid=True, cards=sorted(hand.cards, key=lambda x:(x.suit, x.value)), activityClass="inactiveLink")
-	
+
 	else:
 
 		return render_template('404.html')
@@ -186,7 +186,7 @@ def check_bidding_completed():
 @login_required
 def choose_trump_and_partner():
 	global game, players
-	
+
 	number_of_players = len(players)
 	number_of_partners = int(number_of_players/2)-1
 	suits = ['spades', 'diams', 'clubs', 'hearts']
@@ -203,26 +203,26 @@ def choose_trump_and_partner():
 @login_required
 def post_choose_trump_and_partner():
 	global partner_chosen, player_order, game, players, rounds, player_points
-	
+
 	trump = request.form.get('trump')
 	game.trump = trump
-	
+
 	number_of_players = len(players)
 	number_of_partners = int(number_of_players/2) - 1
-	
+
 	for i in range(1, number_of_partners+1):
 		game.partners.append(Partner(suit=request.form.get('partner_suit'+str(i)), value=request.form.get('partner_value'+str(i)), turn_number=int(request.form.get('partner_turn'+str(i)))))
 
 	partner_chosen = True
 	for player in players:
 		player_order.append(player)
-	
+
 	bidder = game.bidder
 	bidder_index = player_order.index(bidder)
-	
+
 	temp1 = player_order[bidder_index:]
 	temp1.extend(player_order[:bidder_index])
-	
+
 	player_order = temp1
 	global bid_winner, bid_winner_index
 	bid_winner = bidder
@@ -231,7 +231,7 @@ def post_choose_trump_and_partner():
 
 	for i in players:
 		player_points[i] = 0
-	
+
 	return redirect(url_for('app_game.play_round', round_id=1))
 
 @app_game.route('/check_selection')
@@ -249,7 +249,7 @@ def play_round(round_id):
 	partner_cards = []
 	for partner in partners:
 		partner_cards.append((partner.suit, partner.value, partner.turn_number))
-	
+
 	hand = get_hand()
 
 	table_cards = get_round(round_id)
@@ -266,18 +266,18 @@ def play_round(round_id):
 			if card.suit == game.trump and (flag==0 or rank[card.value] >= rank[table_cards[winner].value]):
 				winner = i
 				flag=1
-		
+
 		rounds[round_id-1].winner = player_order[winner]
 		rounds[round_id-1].points = sum(i.points for i in table_cards)
 		player_points[rounds[round_id-1].winner] += rounds[round_id-1].points
 		number_of_rounds = len(cards)/len(players)
-		
+
 		if round_id >= number_of_rounds:
 			return redirect(url_for('app_game.display_results'))
-		
+
 		rounds.append(Round(starting_player=player_order[winner], cards=[]))
 		player_shift = 0
-		get_order(round_id+1) 
+		get_order(round_id+1)
 
 	if len(player_order)==len(rounds[round_id-1].cards):
 		return redirect(url_for('app_game.play_round', round_id=round_id+1))
@@ -295,7 +295,7 @@ def play_round(round_id):
 
 def get_order(round_id):
 	global player_order, rounds
-	
+
 	start_index = player_order.index(rounds[round_id-1].starting_player)
 	temp1 = player_order[start_index:]
 	temp1.extend(player_order[:start_index])
@@ -305,7 +305,7 @@ def get_order(round_id):
 @login_required
 def make_move(suit, value, round_id):
 	global player_shift, player_order, rounds, hands, game, cards
-	
+
 	hand = get_hand()
 
 	card = [card for card in cards if (card.suit==suit and card.value==value)][0]
@@ -318,10 +318,10 @@ def make_move(suit, value, round_id):
 	else:
 		used_card_index = used_card_index[0]
 
-	rounds[round_id-1].cards.append(card) 
+	rounds[round_id-1].cards.append(card)
 	table_cards = get_round(round_id)
 	player_shift += 1
-	
+
 	hand.cards.pop(used_card_index)
 
 	partner_i = [i for i in game.partners if (i.suit==suit and i.value==value)]
@@ -357,7 +357,7 @@ def end_game():
 		if game_started == False:
 			scorecard_lock.release()
 			return redirect(url_for('app_game.list_players'))
-		
+
 		url_params = request.args
 		game_winner = url_params.get('winner','')
 		print(game_winner)
@@ -380,10 +380,14 @@ def end_game():
 				if i.player not in partner_found:
 					if i.player != '':
 						partner_found.add(i.player)
-			add_fixed_scores_from_current_game(factor*game.bid/2,partner_found)	
+			add_fixed_scores_from_current_game(factor*game.bid/2,partner_found)
+
+			if (game_winner == "np"):
+				add_fixed_scores_from_current_game(game.bid, players)
+
 		except Exception as error:
 			print("Scores already added:", error)
-		
+
 
 		del players[:]
 		del cards[:]
@@ -419,12 +423,12 @@ def display_results():
 	partner_found = set()
 	team_bidder += player_points[players[bid_winner_index]]
 	partner_found.add(players[bid_winner_index])
-	
+
 	for i in game.partners:
 		if i.player not in partner_found:
 			team_bidder += player_points[i.player]
 			partner_found.add(i.player)
-		
+
 
 	message = "Partners got " + str(team_bidder) + " points!"
 
