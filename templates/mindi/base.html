@@ -78,8 +78,11 @@
                 Home
             </a>
             {% if current_user.is_authenticated %}
+            <a href="{{ url_for('app_game.list_players') }}" class="navbar-item">
+                Kaali Teeri Players Lobby
+            </a>
             <a href="{{ url_for('mindi.list_players') }}" class="navbar-item">
-                Players
+                Mindi Players Lobby
             </a>
             {% endif %}
             {% if not current_user.is_authenticated %}
