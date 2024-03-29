@@ -1,0 +1,11 @@
+<script>
+    function decideWinner() {
+        let winner = prompt("Please enter the team winning the game. It is required for points accumulation. Enter 'p' for partners, 'np' for non-partners", "p");
+        if (winner == null || winner == "") {
+            decideWinner();
+        } else {
+            window.location.href  = '/end_game?winner=' + winner
+        }
+    }
+    decideWinner();
+</script>
