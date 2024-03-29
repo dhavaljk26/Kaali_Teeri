@@ -39,4 +39,7 @@ def create_app():
         from .game import app_game as game_blueprint
         app.register_blueprint(game_blueprint)
 
+        from .mindi import mindi as mindi_blueprint
+        app.register_blueprint(mindi_blueprint)
+
     return app
