@@ -1,0 +1,11 @@
+<script>
+    function decideWinner() {
+        let winner = prompt("Please enter the team winning the game. It is required for points accumulation. Enter 'p' for partners, 'np' for non-partners. If you are playing Mindi, enter '1' for Team 1, '2' for Team 2", "p");
+        if (winner == null || winner == "") {
+            decideWinner();
+        } else {
+            window.location.href  = '/mindi/end_game?winner=' + winner
+        }
+    }
+    decideWinner();
+</script>
