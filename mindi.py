@@ -18,6 +18,7 @@ player_order = []
 player_shift = 0
 player_points = {}
 removed_card_set = []
+mindi_played_list = []
 
 rank = {}
 for i in range(2,11):
@@ -105,7 +106,7 @@ def check_next_turn(previos_player, round_id):
 @mindi.route('/round/<int:round_id>')
 @login_required
 def play_round(round_id):
-	global player_order, player_shift, game, rounds, cards, players, past_rounds, player_points
+	global mindi_played_list,player_order, player_shift, game, rounds, cards, players, past_rounds, player_points
 
 	team1 = game.team1
 	hand = get_hand()
@@ -119,6 +120,9 @@ def play_round(round_id):
 		for i, card in enumerate(table_cards):
 			if card.suit==start_suit and rank[card.value] >= rank[table_cards[winner].value]:
 				winner = i
+			if rank[card.value] == 9: # This means, its a mindi
+				mindi_played_list.append(card.suit)
+
 		flag = 0
 		
 		for i, card in enumerate(table_cards):
@@ -151,7 +155,7 @@ def play_round(round_id):
 		truth_array = [i.suit==table_cards[0].suit for i in hand.cards]
 		suit_exists = any(truth_array)
 
-	return render_template('mindi/round.html', round_id=round_id, cards=sorted(hand.cards, key=lambda x:(x.suit, x.value)), trump=game.trump, table_cards=table_cards, activityClass=activityClass, turn_id=player_shift, past_rounds=past_rounds, player_order=player_order, player_points=player_points, suit_exists=suit_exists, lifetime_scores=lifetime_scores_mindi, partner_names=team1)
+	return render_template('mindi/round.html', round_id=round_id, cards=sorted(hand.cards, key=lambda x:(x.suit, x.value)), trump=game.trump, table_cards=table_cards, activityClass=activityClass, turn_id=player_shift, past_rounds=past_rounds, player_order=player_order, player_points=player_points, suit_exists=suit_exists, lifetime_scores=lifetime_scores_mindi, partner_names=team1, mindi_played_list=mindi_played_list)
 
 @mindi.route('/make_move/<string:suit>/<string:value>/<int:round_id>')
 @login_required
