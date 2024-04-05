@@ -230,7 +230,7 @@ def end_game():
 				factor = 0
 			else:
 				scorecard_lock.release()
-				return render_template('end_game_popup.html')
+				return render_template('mindi/end_game_popup.html')
 
 		except Exception as error:
 			print("Scores already added:", error)
@@ -251,7 +251,7 @@ def end_game():
 		return redirect(url_for('mindi.list_players'))
 	except Exception as error:
 		scorecard_lock.release()
-		return render_template('end_game_popup.html')
+		return render_template('mindi/end_game_popup.html')
 
 
 def setup_game():
