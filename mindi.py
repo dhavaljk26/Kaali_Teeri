@@ -211,7 +211,7 @@ def display_results():
 def end_game():
 	scorecard_lock.acquire()
 	try:
-		global players, team_1, team_2, cards, hands,  rounds, game, game_started, player_order, past_rounds, player_shift, player_points
+		global players,mindi_played_list, team_1, team_2, cards, hands,  rounds, game, game_started, player_order, past_rounds, player_shift, player_points
 		factor = 0
 		if game_started == False:
 			scorecard_lock.release()
@@ -240,6 +240,8 @@ def end_game():
 		del cards[:]
 		del hands[:]
 		del rounds[:]
+		del mindi_played_list[:]
+		del removed_card_set[:]
 		del team_1, team_2
 		player_points = {}
 		game = GameOfMindi()
