@@ -1,0 +1,179 @@
+{% extends "mindi/base.html" %}
+
+{% block content %}
+
+<div style="font-size: 26px">
+    {%if trump != ''%}
+    <span>Trump:</span>
+    <span class="suit">&{{trump}};</span>
+    <span>{{trump}}</span>
+    {%endif%}
+
+    {%if mindi_played_list|length > 0 %}
+    <span>Mindi Played List:</span>
+    {%endif%}
+    {%for mindi in mindi_played_list%}
+    <span class="suit">&{{mindi}};</span>
+    {%endfor%}
+</div>
+
+<span style="padding-left: 30px;">Player Order:</span>
+{%for player in player_order%}
+{%if player_order[turn_id] == player%}
+<b>
+    {%endif%}
+    <span {%if player in partner_names%} style="color: red" {%endif%}>{{player}}</span><span {%if player in
+        partner_names%} style="color: red" {%endif%}> : </span><span {%if player in partner_names%} style="color: red"
+        {%endif%}>{{player_points[player]}}</span>
+    {%if player_order[turn_id] == player%}
+</b>
+{%endif%}
+<span>,</span>
+
+{%endfor%}
+<div style="padding-left: 30px;width: 100%;overflow: auto;">
+    Table:
+    <div style="display: table-cell;">
+        <div class="playingCards faceImages">
+            <ul class="hand">
+                {%for card in table_cards%}
+                <li>
+                    <div class="card {{card.suit}}" href="">
+                        <span class="rank">{{card.value}}</span>
+                        <span class="suit">&{{card.suit}};</span>
+                    </div>
+                </li>
+                {%endfor%}
+            </ul>
+        </div>
+    </div>
+</div>
+</br>
+
+<div style="display: flex; flex-direction: row;">
+    <span style="width: 50%;">
+        {% include "mindi/hand.html"%}
+    </span>
+    <span style="width: 50%">
+        {% include "mindi/scorecard.html"%}
+    </span>
+</div>
+
+
+</br>
+<style>
+    .flex-container {
+        display: flex;
+    }
+
+    .flex-child {
+        flex: 1;
+
+    }
+
+    .flex-child:first-child {
+        margin-right: 20px;
+    }
+</style>
+{%if past_rounds|length > 0%}
+<div class="flex-container" style="overflow: auto;padding-left: 30px;">
+    Last Round:</br>
+
+    <div class="flex-child">
+        <div class="playingCards faceImages rotateHand" style="width: 100px;">
+            <ul class="hand">
+                {%for card in past_rounds[0]%}
+                <li><span class="card {{card.suit}}">
+                        <span class="rank">{{card.value}}</span>
+                        <span class="suit">&{{card.suit}};</span>
+                    </span>
+                </li>
+                {%endfor%}
+            </ul>
+        </div>
+    </div>
+
+</div>
+{%endif%}
+
+</br>
+
+<script type="text/javascript">
+    function check_next_turn() {
+        $.ajax({
+            url: '/mindi/next_turn/{{turn_id}}/{{round_id}}',
+            success: function (data) {
+                console.log(data);
+                if (data == "True")
+                    window.location.href = "/mindi/round/{{round_id}}";
+            },
+            timeout: 1000 //If timeout is reached run again
+        });
+    }
+    setInterval(check_next_turn, 1000);
+</script>
+
+{% endblock %}
+
+<link rel="stylesheet" type="text/css" href='{{ url_for("static", filename="cards.css") }}'>
+<!--[if lt IE 9]>
+        <link rel="stylesheet" type="text/css" href="cards-ie.css" media="screen" />
+    <![endif]-->
+<!--[if IE 9]>
+        <link rel="stylesheet" type="text/css" href="cards-ie9.css" media="screen" />
+    <![endif]-->
+<!-- the following js and css is not part of the CSS cards, but only for this example page -->
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('.options').addClass('active');
+        $('.toggle li').click(function () {
+            $('.playingCards').toggleClass($(this).text());
+        });
+        $('.lang li').click(function () {
+            $('html').attr('lang', $(this).text());
+            $('html').attr('xml:lang', $(this).text());
+        });
+    });
+</script>
+<style type="text/css">
+    .options.active {
+        position: fixed;
+        top: 1em;
+        right: 1em;
+        background: #ddd;
+        padding: .5em;
+    }
+
+    .options.active h3 {
+        font-size: 1.2em;
+    }
+
+    .options.active ul {
+        padding: 0;
+    }
+
+    .options.active li {
+        color: #00c;
+        text-decoration: underline;
+        margin-left: 1.5em;
+        cursor: pointer;
+    }
+
+    .options.active li:hover {
+        text-decoration: none;
+    }
+
+    div.clear {
+        clear: both;
+        height: 0;
+        line-height: 0;
+        font-size: 1px;
+        visibility: hidden;
+    }
+
+    .inactiveLink {
+        pointer-events: none;
+        cursor: default;
+    }
+</style>

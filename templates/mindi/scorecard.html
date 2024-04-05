@@ -1,0 +1,82 @@
+<!-- Sidebar -->
+
+<div class="sidebar"
+    style=" font-family:sans-serif; display:none; margin-left: 60%; width:40%;  background-color: #F0EFEF; "
+    id="mySidebar">
+    <button onclick="sidebar_close()" class="w3-bar-item">Close</button>
+    <table style="width: 100%;">
+        {%for player in lifetime_scores.keys()%}
+        <tr>
+            <td style="text-align: center;">{{player}}</td>
+            <td style="text-align: center;">{{lifetime_scores.get(player)}}</td>
+        </tr>
+        {%endfor%}
+    </table>
+
+
+</div>
+
+<div class="trigger" id="myTrigger">
+    <button class="w3-button w3-teal w3-xlarge" id="myTrigger2"
+        style="position: relative; width:20px; height:100%; background-color: #4CAF50; color: #4CAF50; font-size:30px;"
+        onclick="sidebar_open()">/button>
+        <div id="triangle"></div>
+</div>
+
+<script>
+    function sidebar_open() {
+        document.getElementById("mySidebar").style.display = "flex";
+        document.getElementById("myTrigger").style.display = "none";
+    }
+
+    function sidebar_close() {
+        document.getElementById("mySidebar").style.display = "none";
+        document.getElementById("myTrigger").style.display = "flex";
+    }
+</script>
+<style type="text/css">
+    td {
+        border-width: medium;
+        border-color: #4CAF50;
+        border-style: solid;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    #mySidebar {
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-evenly safe;
+    }
+
+    #myTrigger {
+        position: relative;
+        margin-left: 20%;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        justify-content: center;
+        height: 100%;
+    }
+
+    #triangle {
+        position: absolute;
+        width: 0;
+        height: 0;
+        border-top: 10px solid transparent;
+        border-bottom: 10px solid transparent;
+        border-left: 10px solid transparent;
+        border-right: 10px solid #4CAF50;
+        margin-left: -150%;
+        margin-top: -150%;
+    }
+
+    .w3-bar-item {
+        width: 100%;
+        border-width: medium;
+        border-color: #4CAF50;
+        border-style: solid;
+        text-align: center;
+        background-color: #CAC2C2;
+    }
+</style>
