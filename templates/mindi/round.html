@@ -9,12 +9,24 @@
     <span>{{trump}}</span>
     {%endif%}
 
-    {%if mindi_played_list|length > 0 %}
-    <span>Mindi Played List:</span>
+    {%if mindi_team_1|length > 0 %}
+    <span>|| Mindi won by Team 1:</span>
     {%endif%}
-    {%for mindi in mindi_played_list%}
+    {%for mindi in mindi_team_1%}
     <span class="suit">&{{mindi}};</span>
     {%endfor%}
+
+    {%if mindi_team_2|length > 0 %}
+    <span>|| Mindi won by Team 2:</span>
+    {%endif%}
+    {%for mindi in mindi_team_2%}
+    <span class="suit">&{{mindi}};</span>
+    {%endfor%}
+</div>
+
+<div>
+    <span style="padding-left: 30px; font-weight: bold;">Team 1 Points : {{team_1_score}}</span>
+    <span style="padding-left: 30px; font-weight: bold;"> Team 2 Points : {{team_2_score}}</span>
 </div>
 
 <span style="padding-left: 30px;">Player Order:</span>
