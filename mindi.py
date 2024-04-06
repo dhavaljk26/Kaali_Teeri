@@ -227,7 +227,7 @@ def display_results():
 def end_game():
 	scorecard_lock.acquire()
 	try:
-		global players, removed_card_set, mindi_played_list, team_1, team_2, cards, hands,  rounds, game, game_started, player_order, past_rounds, player_shift, player_points
+		global players, removed_card_set, mindi_played_list_1, mindi_played_list_2, team_1, team_2, cards, hands,  rounds, game, game_started, player_order, past_rounds, player_shift, player_points
 		factor = 0
 		if game_started == False:
 			scorecard_lock.release()
