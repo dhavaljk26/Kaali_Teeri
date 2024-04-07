@@ -18,7 +18,8 @@ player_order = []
 player_shift = 0
 player_points = {}
 removed_card_set = []
-mindi_played_list = []
+mindi_played_list_1 = []
+mindi_played_list_2 = []
 
 rank = {}
 for i in range(2,11):
@@ -106,12 +107,13 @@ def check_next_turn(previos_player, round_id):
 @mindi.route('/round/<int:round_id>')
 @login_required
 def play_round(round_id):
-	global mindi_played_list,player_order, player_shift, game, rounds, cards, players, past_rounds, player_points
+	global team_1, team_2, mindi_played_list_1, mindi_played_list_2 ,player_order, player_shift, game, rounds, cards, players, past_rounds, player_points
 
 	team1 = game.team1
 	hand = get_hand()
 
 	table_cards = get_round(round_id)
+	mindi_played_list = []
 
 	if len(player_order) <= player_shift:
 		past_rounds.insert(0,table_cards)
@@ -138,6 +140,13 @@ def play_round(round_id):
 		player_points[rounds[round_id-1].winner] += rounds[round_id-1].points
 		number_of_rounds = len(cards)/len(players)
 
+		if len(mindi_played_list) > 0:
+			winnerTeam = any([player==rounds[round_id-1].winner for player in team_1])
+			if winnerTeam == True:
+				mindi_played_list_1.extend(mindi_played_list)
+			else:
+				mindi_played_list_2.extend(mindi_played_list)
+
 		if round_id >= number_of_rounds:
 			return redirect(url_for('mindi.display_results'))
 
@@ -155,7 +164,14 @@ def play_round(round_id):
 		truth_array = [i.suit==table_cards[0].suit for i in hand.cards]
 		suit_exists = any(truth_array)
 
-	return render_template('mindi/round.html', round_id=round_id, cards=sorted(hand.cards, key=lambda x:(x.suit, x.value)), trump=game.trump, table_cards=table_cards, activityClass=activityClass, turn_id=player_shift, past_rounds=past_rounds, player_order=player_order, player_points=player_points, suit_exists=suit_exists, lifetime_scores=lifetime_scores_mindi, partner_names=team1, mindi_played_list=mindi_played_list)
+	team_2_score = 0
+	team_1_score = 0
+	for player in team_2:
+		team_2_score += player_points[player]
+	for player in team_1:
+		team_1_score += player_points[player]
+
+	return render_template('mindi/round.html', round_id=round_id, cards=sorted(hand.cards, key=lambda x:(x.suit, x.value)), trump=game.trump, table_cards=table_cards, activityClass=activityClass, turn_id=player_shift, past_rounds=past_rounds, player_order=player_order, team_1_score=team_1_score, team_2_score=team_2_score, player_points=player_points, suit_exists=suit_exists, lifetime_scores=lifetime_scores_mindi, partner_names=team1, mindi_team_1=mindi_played_list_1, mindi_team_2=mindi_played_list_2)
 
 @mindi.route('/make_move/<string:suit>/<string:value>/<int:round_id>')
 @login_required
@@ -197,7 +213,7 @@ def display_results():
 	for player in game.team2:
 		team_bidder2 += player_points[player]
 
-	message = "Team 1 got " + str(team_bidder) + " points!"
+	message = "Team 1 " + str(team_1) + " got " + str(team_bidder) + " points! \n Team 2 " + str(team_2) + " got " + str(team_bidder2) + " points!"
 
 	if team_bidder > team_bidder2:
 		winner_message = "Team 1 Won!"
@@ -211,7 +227,7 @@ def display_results():
 def end_game():
 	scorecard_lock.acquire()
 	try:
-		global players, team_1, team_2, cards, hands,  rounds, game, game_started, player_order, past_rounds, player_shift, player_points
+		global players, removed_card_set, mindi_played_list_1, mindi_played_list_2, team_1, team_2, cards, hands,  rounds, game, game_started, player_order, past_rounds, player_shift, player_points
 		factor = 0
 		if game_started == False:
 			scorecard_lock.release()
@@ -230,7 +246,7 @@ def end_game():
 				factor = 0
 			else:
 				scorecard_lock.release()
-				return render_template('end_game_popup.html')
+				return render_template('mindi/end_game_popup.html')
 
 		except Exception as error:
 			print("Scores already added:", error)
@@ -240,7 +256,10 @@ def end_game():
 		del cards[:]
 		del hands[:]
 		del rounds[:]
-		del team_1, team_2
+		del mindi_played_list_1[:]
+		del mindi_played_list_2[:]
+		del removed_card_set[:]
+		del team_1[:], team_2[:]
 		player_points = {}
 		game = GameOfMindi()
 		game_started = False
@@ -251,7 +270,7 @@ def end_game():
 		return redirect(url_for('mindi.list_players'))
 	except Exception as error:
 		scorecard_lock.release()
-		return render_template('end_game_popup.html')
+		return render_template('mindi/end_game_popup.html')
 
 
 def setup_game():
